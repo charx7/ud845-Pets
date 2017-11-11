@@ -2,6 +2,7 @@ package com.example.android.pets.data;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -10,6 +11,17 @@ import android.net.Uri;
  */
 public class PetProvider extends ContentProvider {
 
+    //Valores de mapeo para ver los casos a tratar de la URIS
+    private static final int PETS = 100;
+    private static final int PETS_ID = 101;
+
+    //Crea un objeto UriMatcher que llama al metodo Matcher para asignarle NO_MATCH por dafault
+    private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    //Casos de Match para los Uri para mapeo de los valores 100 o 101
+    static {
+        sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY, PetContract.PATH_PETS, PETS);
+        sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY,PetContract.PATH_PETS + "/#", PETS_ID);
+    }
     /** Tag for the log messages */
     public static final String LOG_TAG = PetProvider.class.getSimpleName();
 
