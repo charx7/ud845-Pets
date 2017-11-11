@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDBHelper;
 
@@ -60,7 +61,7 @@ public class CatalogActivity extends AppCompatActivity {
         PetDBHelper mDbHelper = new PetDBHelper(this);
 
         // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        // SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         //Nuevo metodo de hacer el query de manera de no usar un "raw" SQL statement usando un cursor
         //ESta parte selecciona las columnas que quiero que se desplieguen en el query
@@ -70,9 +71,9 @@ public class CatalogActivity extends AppCompatActivity {
                 PetEntry.COLUMN_PET_GENDER,
                 PetEntry.COLUMN_PET_WEIGHT
                 };
-
-        Cursor c = db.query(PetEntry.TABLE_NAME, projeccion, null, null,
-                null, null, null);
+        //Metodo de interaccion con la bdd sin usar un content provider
+        //Cursor c = db.query(PetEntry.TABLE_NAME, projeccion, null, null, null, null, null);
+        Cursor c = getContentResolver().query(PetContract.CONTENT_URI,projeccion, null,null,null);
 
         //Encuentra el ViewId de texto en que se va a desplegar la informacion
         TextView displayView = (TextView) findViewById(R.id.text_view_pet);

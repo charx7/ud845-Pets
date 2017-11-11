@@ -1,9 +1,10 @@
 package com.example.android.pets.data;
-
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
 /**
@@ -32,7 +33,7 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public boolean onCreate() {
-        // TODO: Create and initialize a PetDbHelper object to gain access to the pets database.
+        // Create and initialize a PetDbHelper object to gain access to the pets database.
         // Make sure the variable is a global variable, so it can be referenced from other
         // ContentProvider methods.
         //contuye el objeto llamando al contructor de la clase Petdbhelper
@@ -46,7 +47,39 @@ public class PetProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
-        return null;
+        //Establecer una conexicon con la BDD
+        SQLiteDatabase database = mDbHelper.getReadableDatabase();
+
+        //Nuevo objeto del tipo cursor al que vamos a almacenar el query
+        Cursor cursor;
+
+        //Ver cual caso nos arroja el URI matcher y operar segun lo debido
+        int match =sUriMatcher.match(uri);
+        switch (match) {
+            case PETS : //Caso en que el match de la uri que le pasemos nos arroje el Integer de 100
+                //Solamente hace el query sobre el objeto cursor usando las projecciones (columnas que quieres)
+                cursor = database.query(PetContract.PetEntry.TABLE_NAME,
+                        projection
+                        ,selection
+                        ,selectionArgs
+                        ,null
+                        ,null
+                        ,sortOrder);
+                break;
+            case PETS_ID : //Caso en que el match de la uri que le pasemos nos arroje el Integer de 101
+                //Determina cuales van a ser los elementos (columnas) de la seleccion
+                selection = PetContract.PetEntry._ID + "=?";
+                //Determina cuales van a ser las condiciones del matcheo el ID o el arreglo de ID "where ID = X" de SQL
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                cursor = database.query(PetContract.PetEntry.TABLE_NAME, projection,selection,selectionArgs
+                ,null,null, sortOrder);
+                break;
+            default:
+                throw new IllegalArgumentException("No se le puede hacer query Uri Unknown " + uri);
+        }
+
+
+        return cursor;
     }
 
     /**
