@@ -15,6 +15,8 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +30,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.example.android.pets.data.PetContract;
+import com.example.android.pets.data.PetDBHelper;
 
 /**
  * Allows user to create a new pet or edit an existing one.
@@ -105,6 +108,33 @@ public class EditorActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Jala los datos que puso el usuario y salva la mascota en la BDD
+     */
+    private  void insertPet(){
+        //Llama al objeto creado que hace referencia a la view y llama al metodo .gettext y
+        //.tostring para sacar los datos y transformarlos a texto el trim elimina los blancos adicionales
+        String nombreAInsertar = mNameEditText.getText().toString().trim();
+        Integer generoAInsertar = mGender;
+        String razaAInsertar = mBreedEditText.getText().toString().trim();
+        Integer pesoAInsertar = Integer.parseInt(mWeightEditText.getText().toString().trim());
+        //Crea una lista de key pairs de datos dummy con los que se va a llenar un registro de la
+        //talba pets
+        ContentValues valoresInsertar = new ContentValues();
+        valoresInsertar.put(PetContract.PetEntry.COLUMN_PET_NAME, nombreAInsertar);
+        valoresInsertar.put(PetContract.PetEntry.COLUMN_PET_BREED, razaAInsertar);
+        valoresInsertar.put(PetContract.PetEntry.COLUMN_PET_GENDER, generoAInsertar);
+        valoresInsertar.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, pesoAInsertar);
+
+        //Constructor del objeto PetDBHelper
+        PetDBHelper mDbHelper = new PetDBHelper(this);
+        //Establece conexicon con la BDD
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        //Llama al metodo nuevo onInsert definido en el helper
+        mDbHelper.onInsert(db, valoresInsertar);
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu options from the res/menu/menu_editor.xml file.
@@ -119,7 +149,11 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Do nothing for now
+                //Llama al metodo para insertar la moscota a la BDD con los datos vaciados por el
+                //usuario
+                insertPet();
+                //Salir de la Actividad
+                finish();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:

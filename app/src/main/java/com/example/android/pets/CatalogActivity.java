@@ -43,6 +43,14 @@ public class CatalogActivity extends AppCompatActivity {
         displayDatabaseInfo();
     }
 
+    //Override al metodo onStart para que cuando la actividad empiece de nuevo haga una llamada
+    //al metodo displayDatabaseInfo que muestra la info de la BDD
+    @Override
+    protected void onStart(){
+        super.onStart();
+        displayDatabaseInfo();
+    }
+
     /**
      * Temporary helper method to display information in the onscreen TextView about the state of
      * the pets database.
