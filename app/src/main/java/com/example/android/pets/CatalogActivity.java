@@ -1,5 +1,6 @@
 
 package com.example.android.pets;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,6 +21,7 @@ import com.example.android.pets.data.PetDBHelper;
  */
 public class CatalogActivity extends AppCompatActivity {
 
+    private PetDBHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,8 @@ public class CatalogActivity extends AppCompatActivity {
             }
         });
 
+        //Llama al constructor de la clase PetDBHelper para poder hacer metodos sobre el
+        mDbHelper = new PetDBHelper(this);
         displayDatabaseInfo();
     }
 
@@ -66,6 +70,23 @@ public class CatalogActivity extends AppCompatActivity {
         }
     }
 
+    //Metodo que inserta una mascota
+    private void insertPet(){
+        //Crea una lista de key pairs de datos dummy con los que se va a llenar un registro de la
+        //talba pets
+        ContentValues valoresInsertar = new ContentValues();
+        valoresInsertar.put(PetEntry.COLUMN_PET_NAME, "Toto");
+        valoresInsertar.put(PetEntry.COLUMN_PET_BREED, "Terrier");
+        valoresInsertar.put(PetEntry.COLUMN_PET_GENDER, PetEntry.GENDER_MALE);
+        valoresInsertar.put(PetEntry.COLUMN_PET_WEIGHT, 7);
+
+        //Establece conexicon con la BDD
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        //Llama al metodo nuevo onInsert definido en el helper
+        mDbHelper.onInsert(db, valoresInsertar);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu options from the res/menu/menu_catalog.xml file.
@@ -80,7 +101,9 @@ public class CatalogActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
-                // Do nothing for now
+                //Llama al nuevo metodo que inserta una mascota
+                insertPet();
+                displayDatabaseInfo();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:

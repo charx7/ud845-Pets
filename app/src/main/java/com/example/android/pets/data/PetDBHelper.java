@@ -1,5 +1,6 @@
 package com.example.android.pets.data;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -35,11 +36,19 @@ public class PetDBHelper extends SQLiteOpenHelper{
         onCreate(db);
     }
 
+    //Metodo que hace inserciones a la DB
+    public void onInsert(SQLiteDatabase db,ContentValues valoresaInsertar){
+        //Metodo para insertar los datos en la tabla de Pets teniendo una serie de contentvalues
+        //contruidos
+        db.insert(PetContract.PetEntry.TABLE_NAME,null,valoresaInsertar);
+    }
+
     //Definiciones de las sentencias de SQL
     private static final String SQL_CREATE_ENTRIES =
             "CREATE TABLE " + PetContract.PetEntry.TABLE_NAME + " (" +
                     PetContract.PetEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     PetContract.PetEntry.COLUMN_PET_NAME + " TEXT NOT NULL," +
+                    PetContract.PetEntry.COLUMN_PET_BREED + " TEXT," +
                     PetContract.PetEntry.COLUMN_PET_GENDER + " INTEGER NOT NULL," +
                     PetContract.PetEntry.COLUMN_PET_WEIGHT + " INTEGER NOT NULL DEFAULT 0);";
 
