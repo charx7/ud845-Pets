@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDBHelper;
-import com.example.android.pets.data.PetDBHelper;
 
 /**
  * Displays list of pets that were entered and stored in the app.
@@ -71,15 +70,47 @@ public class CatalogActivity extends AppCompatActivity {
                 PetEntry.COLUMN_PET_GENDER,
                 PetEntry.COLUMN_PET_WEIGHT
                 };
-        
+
         Cursor c = db.query(PetEntry.TABLE_NAME, projeccion, null, null,
                 null, null, null);
 
+        //Encuentra el ViewId de texto en que se va a desplegar la informacion
+        TextView displayView = (TextView) findViewById(R.id.text_view_pet);
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
-            // pets table in the database).
-            TextView displayView = (TextView) findViewById(R.id.text_view_pet);
+            // pets table in the database). Usando el cursor
             displayView.setText("Number of rows in pets database table: " + c.getCount());
+            //Muestra los nombres de la columnas
+            displayView.append("\n\n" + PetEntry._ID + " - "
+            +PetEntry.COLUMN_PET_NAME + " - " +
+                    PetEntry.COLUMN_PET_BREED + " - " +
+                    PetEntry.COLUMN_PET_GENDER + " - " +
+                    PetEntry.COLUMN_PET_WEIGHT +
+                    "\n");
+            //Jala los indices de la columna del cursor "c" que obtivimos en el query (funciona
+            //como una matriz n x n
+            int idColumnIndex = c.getColumnIndex(PetEntry._ID);
+            int nameColumnIndex = c.getColumnIndex(PetEntry.COLUMN_PET_NAME);
+            int breedColumnIndex = c.getColumnIndex(PetEntry.COLUMN_PET_BREED);
+            int genderColumnIndex = c.getColumnIndex(PetEntry.COLUMN_PET_GENDER);
+            int weightColumnIndex = c.getColumnIndex(PetEntry.COLUMN_PET_WEIGHT);
+
+            //Iteramos sobre all el cursor para ir añadiendo los datos del query a nuestra textview
+            while (c.moveToNext()){// Condiciòn de loop que devuelve falso cuando ya no hay mas elementos
+                //metodos get del cursor "c" para devolver el elemento del query
+                int currentID = c.getInt(idColumnIndex);
+                String currentName = c.getString(nameColumnIndex);
+                String currentBreed = c.getString(breedColumnIndex);
+                int currentGender = c.getInt(genderColumnIndex);
+                int currentWeight = c.getInt(weightColumnIndex);
+
+                //Añadiendo los elementos obtenidos del cursor a la view de text con .append
+                displayView.append(("\n"+ currentID + " - " +
+                        currentName + " - " +
+                        currentBreed + " - " +
+                        currentGender + " - " +
+                        currentWeight));
+            }
         } finally {
             // Always close the cursor when you're done reading from it. This releases all its
             // resources and makes it invalid.
