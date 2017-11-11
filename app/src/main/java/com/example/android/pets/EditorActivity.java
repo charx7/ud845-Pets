@@ -28,6 +28,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetDBHelper;
@@ -131,8 +132,15 @@ public class EditorActivity extends AppCompatActivity {
         //Establece conexicon con la BDD
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
         //Llama al metodo nuevo onInsert definido en el helper
-        mDbHelper.onInsert(db, valoresInsertar);
+        //mDbHelper.onInsert(db, valoresInsertar);
 
+        long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME,null,valoresInsertar);
+
+        if (newRowId == -1) {
+            Toast.makeText(this,"Error Salvando a la mascota", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this,"Mascota salvada con el ID: "+ newRowId, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
