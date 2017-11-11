@@ -12,6 +12,7 @@ public final class PetContract {
         //Definimos el nombre de la tabla en el contrato
         public static final String TABLE_NAME = "pets";
         //Definimos el nombre de las columnas de la tabla pets
+        public static final String _ID = BaseColumns._ID;
         public static final String COLUMN_PET_NAME = "name";
         public static final String COLUMN_PET_BREED = "breed";
         public static final String COLUMN_PET_GENDER = "gender";
@@ -20,9 +21,9 @@ public final class PetContract {
         /**
          * Valores Posibles de genero para los pets y su entero asignado
          */
-        public static final int GENERO_MACHO = 1;
-        public static final int GENERO_HEMBRA = 2;
-        public static final int GENERO_DESCONOCIDO = 0;
+        public static final int GENDER_MALE = 1;
+        public static final int GENDER_FEMALE = 2;
+        public static final int GENDER_UNKNOWN= 0;
     }
 
 }
