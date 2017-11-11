@@ -1,5 +1,6 @@
 package com.example.android.pets.data;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 public final class PetContract {
@@ -25,5 +26,15 @@ public final class PetContract {
         public static final int GENDER_FEMALE = 2;
         public static final int GENDER_UNKNOWN= 0;
     }
-
+    /**
+     * Empiezan los valores constantes de URI para el content provider
+     */
+    //La contante de authority
+    public static final String CONTENT_AUTHORITY = "com.example.android.pets";
+    //La contante del contenido base de las URIs
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    //La contante de contenido de la tabla pets
+    public static final String PATH_PETS = "pets";
+    //Ahora all junto para hacer la direccion URI con un objeto Uri
+    public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PETS);
 }
