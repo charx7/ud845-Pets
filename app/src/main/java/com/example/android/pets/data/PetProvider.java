@@ -174,7 +174,7 @@ public class PetProvider extends ContentProvider {
 
         // Faltan los data validators!! para no updater valores falsos
         // Abre la conexicon a la BDD
-        SQLiteDatabase database = mDbHelper.getReadableDatabase();
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
 
         // Hace el update de las filas y guarda el numero de filas actualizadas en la variable
         // idFilasActualizadas usando el objeto database
@@ -192,7 +192,24 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        // Establecer conexion con la BDD solo que ahora es writable
+        SQLiteDatabase database = mDbHelper.getWritableDatabase();
+        // Hace el match segun el caso arrojado y predefinido por la URI de argumento y hace el case
+        final int match = sUriMatcher.match(uri);
+        switch (match){
+            case PETS:
+                return database.delete(PetContract.PetEntry.TABLE_NAME,
+                        selection,selectionArgs);
+            case PETS_ID:
+                // Lineas que procesan los ids del where donde se hara el delete
+                // Sobre que filas se hara la modificacion especifica de los ids
+                selection = PetContract.PetEntry._ID +"=?";
+                // Arroja un vector de cadenas de los ids individuales contenidos en la String
+                selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
+                return  database.delete(PetContract.PetEntry.TABLE_NAME,selection,selectionArgs);
+            default:
+                throw new IllegalArgumentException("No es soportado borrar para: " + uri);
+        }
     }
 
     /**
