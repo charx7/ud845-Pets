@@ -143,8 +143,49 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
-        return 0;
+        //Hace el match de la uri para hacer el switch segun el caso de uno o varios registros
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case PETS:
+                return updatePet(uri, contentValues, selection, selectionArgs);
+            case PETS_ID:
+                // For the PET_ID code, extract out the ID from the URI,
+                // so we know which row to update. Selection will be "_id=?" and selection
+                // arguments will be a String array containing the actual ID.
+                selection = PetContract.PetEntry._ID + "=?";
+                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                return updatePet(uri, contentValues, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("No se puede actualizar para " + uri);
+        }
     }
+
+    /**
+     * Update pets in the database with the given content values. Apply the changes to the rows
+     * specified in the selection and selection arguments (which could be 0 or 1 or more pets).
+     * Return the number of rows that were successfully updated.
+     */
+    private int updatePet(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+
+        //Se sale antes si no hay valores a actualizar
+        if (values.size() == 0) {
+            return 0;
+        }
+
+        // Faltan los data validators!! para no updater valores falsos
+        // Abre la conexicon a la BDD
+        SQLiteDatabase database = mDbHelper.getReadableDatabase();
+
+        // Hace el update de las filas y guarda el numero de filas actualizadas en la variable
+        // idFilasActualizadas usando el objeto database
+        int idFilasActualizadas = database.update(PetContract.PetEntry.TABLE_NAME,values,selection
+                ,selectionArgs);
+        // Regresa el entero del numero de filas actualizadas
+        return idFilasActualizadas;
+
+    }
+
+
 
     /**
      * Delete the data at the given selection and selection arguments.
