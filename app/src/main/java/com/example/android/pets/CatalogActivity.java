@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDBHelper;
+import com.example.android.pets.data.PetProvider;
 
 /**
  * Displays list of pets that were entered and stored in the app.
@@ -122,18 +124,21 @@ public class CatalogActivity extends AppCompatActivity {
     //Metodo que inserta una mascota
     private void insertPet(){
         //Crea una lista de key pairs de datos dummy con los que se va a llenar un registro de la
-        //talba pets
+        //tabla pets
         ContentValues valoresInsertar = new ContentValues();
         valoresInsertar.put(PetEntry.COLUMN_PET_NAME, "Toto");
         valoresInsertar.put(PetEntry.COLUMN_PET_BREED, "Terrier");
         valoresInsertar.put(PetEntry.COLUMN_PET_GENDER, PetEntry.GENDER_MALE);
         valoresInsertar.put(PetEntry.COLUMN_PET_WEIGHT, 7);
-
+        //Codigo viejo para hacer la insercion de manera directa a la BDD
         //Establece conexicon con la BDD
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
+        //SQLiteDatabase db = mDbHelper.getReadableDatabase();
         //Llama al metodo nuevo onInsert definido en el helper
-        mDbHelper.onInsert(db, valoresInsertar);
+        //mDbHelper.onInsert(db, valoresInsertar);
+        /**
+         * Usando los Content providers para hacer la insercion a la BDD
+         */
+        Uri nuevaUri = getContentResolver().insert(PetContract.CONTENT_URI, valoresInsertar);
     }
 
     @Override

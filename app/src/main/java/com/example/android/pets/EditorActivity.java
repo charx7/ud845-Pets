@@ -16,7 +16,9 @@
 package com.example.android.pets;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -127,19 +129,33 @@ public class EditorActivity extends AppCompatActivity {
         valoresInsertar.put(PetContract.PetEntry.COLUMN_PET_GENDER, generoAInsertar);
         valoresInsertar.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, pesoAInsertar);
 
+        //Codigo viejo que inserta el la mascota a la BDD usando query directo
         //Constructor del objeto PetDBHelper
-        PetDBHelper mDbHelper = new PetDBHelper(this);
+        //PetDBHelper mDbHelper = new PetDBHelper(this);
         //Establece conexicon con la BDD
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+        //SQLiteDatabase db = mDbHelper.getReadableDatabase();
         //Llama al metodo nuevo onInsert definido en el helper
         //mDbHelper.onInsert(db, valoresInsertar);
+        //long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME,null,valoresInsertar);
 
-        long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME,null,valoresInsertar);
+        //if (newRowId == -1) {
+        //    Toast.makeText(this,"Error Salvando a la mascota", Toast.LENGTH_SHORT).show();
+        //} else {
+        //    Toast.makeText(this,"Mascota salvada con el ID: "+ newRowId, Toast.LENGTH_SHORT).show();
+        //}
 
-        if (newRowId == -1) {
-            Toast.makeText(this,"Error Salvando a la mascota", Toast.LENGTH_SHORT).show();
+        /**
+         * Llamado de insercion al metodo que usa el nuevo data provider, regresa una uri con el contenido
+         * de direccion del nuevo registro de mascota en la BDD
+         */
+        Uri nuevaUri = getContentResolver().insert(PetContract.CONTENT_URI,valoresInsertar);
+        // El mensaje Toast segun el valor de nuevaURI
+        if (nuevaUri==null){
+            Toast.makeText(this, getString(R.string.insertar_mascota_fallido)
+            ,Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this,"Mascota salvada con el ID: "+ newRowId, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,getString(R.string.insertar_mascota_exito),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 

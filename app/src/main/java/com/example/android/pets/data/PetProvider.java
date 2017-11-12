@@ -6,6 +6,8 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
+import android.widget.Toast;
 
 /**
  * {@link ContentProvider} for Pets app.
@@ -87,8 +89,40 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        return null;
+        //Hace el llamado al metodo de match para recuperar el valor del mapeo que nos dice la
+        //naturaleza de la tabla asociada URI
+        final int match = sUriMatcher.match(uri);
+        //Casos switch segun el valor de match dado
+        switch (match){
+            case PETS:
+                //Llama al metodo de insercion del provedor de la informacion
+                return insertPet(uri,contentValues);
+            default:
+                throw new IllegalArgumentException("Insertion no soportada para " + uri);
+        }
     }
+
+    /**
+     *@param uri
+     *@param valoresAInsertar
+     * Metodo con el que se va a llamar a la inserción del registro de pets con los valores y la
+     * Uri recuperada del metodo insert
+     */
+    private Uri insertPet(Uri uri, ContentValues valoresAInsertar){
+        // Abre la conexicon a la BDD
+        SQLiteDatabase database = mDbHelper.getReadableDatabase();
+        // Linea que hace la insercion a la BDD y que guarda el valor del ID insertado
+        long newRowId = database.insert(PetContract.PetEntry.TABLE_NAME,null,valoresAInsertar);
+        // Metodo que llama a un mensaje al log y regresa null si no puedo insertar bien el registro
+        if (newRowId == -1) {
+            Log.e(LOG_TAG, "Fallado a insertar en la fila para "+ uri);
+            return null;
+        }
+        // Ya que sabemos el ID del nuevo registro insertado en la tabla este metodo nos retorna
+        // Una URI con el ID appendido (autoincrementado al final
+        return ContentUris.withAppendedId(uri, newRowId);
+    }
+
 
     /**
      * Updates the data at the given selection and selection arguments, with the new ContentValues.

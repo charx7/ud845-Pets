@@ -58,4 +58,11 @@
 
     <!-- Label for dropdown menu option if the pet is female [CHAR LIMIT=20] -->
     <string name="gender_female">Female</string>
+
+    <!-- Texto para las Strings de insercion de los Toast -->
+    <string name="insertar_mascota_fallido">Fallo Mascota No Gardadada</string>
+
+    <!-- Texto para las Strings de insercion de los Toast -->
+    <string name="insertar_mascota_exito">Mascota Guardada</string>
+
 </resources>
