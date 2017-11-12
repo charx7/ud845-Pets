@@ -109,6 +109,20 @@ public class PetProvider extends ContentProvider {
      * Uri recuperada del metodo insert
      */
     private Uri insertPet(Uri uri, ContentValues valoresAInsertar){
+        // Verificadores de los contenidos a insertar que tengan sentido para nuestra BDD
+        // Verificador del campo no-nulo de nombre
+        String name = valoresAInsertar.getAsString(PetContract.PetEntry.COLUMN_PET_NAME);
+        if (name == null) {
+            throw new IllegalArgumentException("La mascota requiere un nombre");
+        }
+        // Verificador de peso no nulo
+        int peso = valoresAInsertar.getAsInteger(PetContract.PetEntry.COLUMN_PET_WEIGHT);
+        if(peso == 0){
+            throw new IllegalArgumentException("La mascota requiere un peso");
+        }
+        // No se Necesita verificador de la raza porque puede ser nulo sin afectar la consistencia de
+        // la tabla de Pets
+
         // Abre la conexicon a la BDD
         SQLiteDatabase database = mDbHelper.getReadableDatabase();
         // Linea que hace la insercion a la BDD y que guarda el valor del ID insertado
