@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract;
@@ -42,7 +43,28 @@ public class CatalogActivity extends AppCompatActivity {
 
         //Llama al constructor de la clase PetDBHelper para poder hacer metodos sobre el
         mDbHelper = new PetDBHelper(this);
-        displayDatabaseInfo();
+
+        /**
+         * displayDatabaseInfo(); comentado por ahora para probar si sirve el adapter
+         */
+        //Nuevo metodo de hacer el query de manera de no usar un "raw" SQL statement usando un cursor
+        //ESta parte selecciona las columnas que quiero que se desplieguen en el query
+        String[] projeccion = {PetEntry._ID,
+                PetEntry.COLUMN_PET_NAME,
+                PetEntry.COLUMN_PET_BREED,
+                PetEntry.COLUMN_PET_GENDER,
+                PetEntry.COLUMN_PET_WEIGHT
+        };
+        //Metodo de interaccion con la bdd sin usar un content provider
+        //Cursor c = db.query(PetEntry.TABLE_NAME, projeccion, null, null, null, null, null);
+        Cursor c = getContentResolver().query(PetContract.CONTENT_URI,projeccion, null,null,null);
+
+        // Ecuentra la listView de la actividad para empezar a llenar de views
+        ListView lvItems = (ListView) findViewById(R.id.lista_mascotas);
+        // Creamos un objeto de la nueva clase PetCursorAdapter que extiende Cursor Adapter
+        PetCursorAdapter petAdapter = new PetCursorAdapter(this,c);
+        // Unimos el Cursor adapter a la ListView que encontramos en el primer paso
+        lvItems.setAdapter(petAdapter);
     }
 
     //Override al metodo onStart para que cuando la actividad empiece de nuevo haga una llamada
@@ -50,7 +72,7 @@ public class CatalogActivity extends AppCompatActivity {
     @Override
     protected void onStart(){
         super.onStart();
-        displayDatabaseInfo();
+        //displayDatabaseInfo();
     }
 
     /**
@@ -78,7 +100,7 @@ public class CatalogActivity extends AppCompatActivity {
         Cursor c = getContentResolver().query(PetContract.CONTENT_URI,projeccion, null,null,null);
 
         //Encuentra el ViewId de texto en que se va a desplegar la informacion
-        TextView displayView = (TextView) findViewById(R.id.text_view_pet);
+        TextView displayView = (TextView) findViewById(R.id.list_item_pet_name);
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database). Usando el cursor
@@ -157,7 +179,7 @@ public class CatalogActivity extends AppCompatActivity {
             case R.id.action_insert_dummy_data:
                 //Llama al nuevo metodo que inserta una mascota
                 insertPet();
-                displayDatabaseInfo();
+                //displayDatabaseInfo();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
