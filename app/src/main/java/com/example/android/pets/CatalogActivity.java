@@ -47,24 +47,7 @@ public class CatalogActivity extends AppCompatActivity {
         /**
          * displayDatabaseInfo(); comentado por ahora para probar si sirve el adapter
          */
-        //Nuevo metodo de hacer el query de manera de no usar un "raw" SQL statement usando un cursor
-        //ESta parte selecciona las columnas que quiero que se desplieguen en el query
-        String[] projeccion = {PetEntry._ID,
-                PetEntry.COLUMN_PET_NAME,
-                PetEntry.COLUMN_PET_BREED,
-                PetEntry.COLUMN_PET_GENDER,
-                PetEntry.COLUMN_PET_WEIGHT
-        };
-        //Metodo de interaccion con la bdd sin usar un content provider
-        //Cursor c = db.query(PetEntry.TABLE_NAME, projeccion, null, null, null, null, null);
-        Cursor c = getContentResolver().query(PetContract.CONTENT_URI,projeccion, null,null,null);
-
-        // Ecuentra la listView de la actividad para empezar a llenar de views
-        ListView lvItems = (ListView) findViewById(R.id.lista_mascotas);
-        // Creamos un objeto de la nueva clase PetCursorAdapter que extiende Cursor Adapter
-        PetCursorAdapter petAdapter = new PetCursorAdapter(this,c);
-        // Unimos el Cursor adapter a la ListView que encontramos en el primer paso
-        lvItems.setAdapter(petAdapter);
+        displayDatabaseInfo2();
     }
 
     //Override al metodo onStart para que cuando la actividad empiece de nuevo haga una llamada
@@ -72,7 +55,7 @@ public class CatalogActivity extends AppCompatActivity {
     @Override
     protected void onStart(){
         super.onStart();
-        //displayDatabaseInfo();
+        displayDatabaseInfo2();
     }
 
     /**
@@ -163,6 +146,28 @@ public class CatalogActivity extends AppCompatActivity {
         Uri nuevaUri = getContentResolver().insert(PetContract.CONTENT_URI, valoresInsertar);
     }
 
+    //Nueva manera de llamar al display ahora usando el CursorAdapter
+    private void displayDatabaseInfo2(){
+        //Nuevo metodo de hacer el query de manera de no usar un "raw" SQL statement usando un cursor
+        //ESta parte selecciona las columnas que quiero que se desplieguen en el query
+        String[] projeccion = {PetEntry._ID,
+                PetEntry.COLUMN_PET_NAME,
+                PetEntry.COLUMN_PET_BREED,
+                PetEntry.COLUMN_PET_GENDER,
+                PetEntry.COLUMN_PET_WEIGHT
+        };
+        //Metodo de interaccion con la bdd sin usar un content provider
+        //Cursor c = db.query(PetEntry.TABLE_NAME, projeccion, null, null, null, null, null);
+        Cursor c = getContentResolver().query(PetContract.CONTENT_URI,projeccion, null,null,null);
+
+        // Ecuentra la listView de la actividad para empezar a llenar de views
+        ListView lvItems = (ListView) findViewById(R.id.lista_mascotas);
+        // Creamos un objeto de la nueva clase PetCursorAdapter que extiende Cursor Adapter
+        PetCursorAdapter petAdapter = new PetCursorAdapter(this,c);
+        // Unimos el Cursor adapter a la ListView que encontramos en el primer paso
+        lvItems.setAdapter(petAdapter);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu options from the res/menu/menu_catalog.xml file.
@@ -179,7 +184,7 @@ public class CatalogActivity extends AppCompatActivity {
             case R.id.action_insert_dummy_data:
                 //Llama al nuevo metodo que inserta una mascota
                 insertPet();
-                //displayDatabaseInfo();
+                displayDatabaseInfo2();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
