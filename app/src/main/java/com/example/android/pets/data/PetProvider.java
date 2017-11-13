@@ -213,7 +213,7 @@ public class PetProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match){
             case PETS:
-                
+
                 // Notifica a los listeners que los datos han cambiado para el petcontent uri
                 getContext().getContentResolver().notifyChange(uri,null);
 

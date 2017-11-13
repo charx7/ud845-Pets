@@ -1,6 +1,7 @@
 
 package com.example.android.pets;
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -63,6 +65,26 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         mCursorAdapter = new PetCursorAdapter(this,null);
         petListView.setAdapter(mCursorAdapter);
 
+        // Añadir on item click listener para mandar intents del cursor adapter
+        petListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Logica del metodo implementado para mandar un intent
+                // Crea un nuevo Intent para ir al {@link EditorActivity}
+                Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+
+                // Forma el content Uri que representa que pet o elemento de la bdd fue clickeado
+                // esto se hace haciendo un append del id del objeto del adapter view a la contante
+                // CONTENT_URI + id del parametro ej "content://com.example.android.pets/pets/2"
+                Uri currentPetUri = ContentUris.withAppendedId(PetContract.CONTENT_URI, id);
+
+                // Añadir la Uri a los datos del intent
+                intent.setData(currentPetUri);
+
+                // Lanza la actividad de Editor para desplegar con los datos del elemento clickeado
+                startActivity(intent);
+            }
+        });
 
         // Inicializacion del Loader (background thread para hacer query)
         getLoaderManager().initLoader(PET_LOADER, null, this);

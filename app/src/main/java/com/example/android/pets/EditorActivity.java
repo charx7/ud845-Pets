@@ -16,6 +16,7 @@
 package com.example.android.pets;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -68,6 +69,18 @@ public class EditorActivity extends AppCompatActivity {
         mBreedEditText = (EditText) findViewById(R.id.edit_pet_breed);
         mWeightEditText = (EditText) findViewById(R.id.edit_pet_weight);
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
+
+        // Examinar si la actividad fue abierta mediante un intent de pet o no y modificar el comportamiento
+        // de manera adecuada mediante el valor que fue pasado de la uri
+
+        Intent intent = getIntent();
+        Uri currentPetUri = intent.getData();
+
+        if (currentPetUri == null){
+            setTitle("Añadir una mascota");
+        } else {
+            setTitle("Editar una mascota");
+        }
 
         setupSpinner();
     }
