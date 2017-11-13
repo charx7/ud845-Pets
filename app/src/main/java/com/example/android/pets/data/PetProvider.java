@@ -80,7 +80,11 @@ public class PetProvider extends ContentProvider {
                 throw new IllegalArgumentException("No se le puede hacer query Uri Unknown " + uri);
         }
 
-
+        // Notificaciones Uri en el cursor, asi sabremos
+        // si los datos en el URI cambiaron entonces sabemos que
+        // debemos de actualizar el cursor
+        cursor.setNotificationUri(getContext().getContentResolver(),uri);
+        
         return cursor;
     }
 
@@ -132,6 +136,10 @@ public class PetProvider extends ContentProvider {
             Log.e(LOG_TAG, "Fallado a insertar en la fila para "+ uri);
             return null;
         }
+
+        // Notifica a los listeners que los datos han cambiado para el petcontent uri
+        getContext().getContentResolver().notifyChange(uri,null);
+
         // Ya que sabemos el ID del nuevo registro insertado en la tabla este metodo nos retorna
         // Una URI con el ID appendido (autoincrementado al final
         return ContentUris.withAppendedId(uri, newRowId);
