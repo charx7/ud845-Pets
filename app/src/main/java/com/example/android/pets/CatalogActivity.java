@@ -1,7 +1,9 @@
 
 package com.example.android.pets;
+import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -41,13 +43,23 @@ public class CatalogActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * Despliega el menu vaicio cuando no hay datos
+         */
+        // Find the ListView which will be populated with the pet data
+        ListView petListView = (ListView) findViewById(R.id.lista_mascotas);
+
+        // Find and set empty view on the ListView, so that it only shows when the list has 0 items.
+        View emptyView = findViewById(R.id.empty_view);
+        petListView.setEmptyView(emptyView);
+
         //Llama al constructor de la clase PetDBHelper para poder hacer metodos sobre el
         mDbHelper = new PetDBHelper(this);
 
         /**
          * displayDatabaseInfo(); comentado por ahora para probar si sirve el adapter
          */
-        displayDatabaseInfo2();
+        // displayDatabaseInfo2();
     }
 
     //Override al metodo onStart para que cuando la actividad empiece de nuevo haga una llamada

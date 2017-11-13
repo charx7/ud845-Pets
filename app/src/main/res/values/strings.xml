@@ -65,4 +65,10 @@
     <!-- Texto para las Strings de insercion de los Toast -->
     <string name="insertar_mascota_exito">Mascota Guardada</string>
 
+    <!-- Title text for the empty view, which describes the empty dog house image [CHAR LIMIT=50] -->
+    <string name="empty_view_title_text">Aun no hay datos para mostrar :(</string>
+
+    <!-- Subtitle text for the empty view that prompts the user to add a pet [CHAR LIMIT=50] -->
+    <string name="empty_view_subtitle_text">Añade una nueva masscota!</string>
+
 </resources>
