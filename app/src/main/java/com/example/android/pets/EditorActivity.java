@@ -15,8 +15,11 @@
  */
 package com.example.android.pets;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -39,7 +42,13 @@ import com.example.android.pets.data.PetDBHelper;
 /**
  * Allows user to create a new pet or edit an existing one.
  */
-public class EditorActivity extends AppCompatActivity {
+public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    /** Identifier for the pet data loader */
+     private static final int EXISTING_PET_LOADER = 0;
+
+    // Crea el objeto para sacar el Uri del intent
+    private Uri mCurrentPetUri;
 
     /** EditText field to enter the pet's name */
     private EditText mNameEditText;
@@ -80,6 +89,10 @@ public class EditorActivity extends AppCompatActivity {
             setTitle("Añadir una mascota");
         } else {
             setTitle("Editar una mascota");
+            // Inicializacion del background thread para el metodo query
+            mCurrentPetUri = currentPetUri;
+            getLoaderManager().initLoader(EXISTING_PET_LOADER, null, this);
+
         }
 
         setupSpinner();
@@ -203,5 +216,78 @@ public class EditorActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+
+    //Metodos que usan una background thread para hacer los querys a la BDD
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        // Definida una projeccion sobre la que se va a hacer el query (las columnas que jalaremos)
+        String[] projeccion = {PetContract.PetEntry._ID,
+                PetContract.PetEntry.COLUMN_PET_NAME,
+                PetContract.PetEntry.COLUMN_PET_BREED,
+                PetContract.PetEntry.COLUMN_PET_GENDER,
+                PetContract.PetEntry.COLUMN_PET_WEIGHT
+        };
+
+
+        // Este loader ejecuta el Content Provider metodo de hacer un query usando la projeccion en
+        //una background thread
+        return new CursorLoader(this, // Contexto de la Parent Activity
+                mCurrentPetUri, // Uri con la que se harà el query al content provider
+                projeccion,// Columnas a incluir en el cursor
+                null, // No hay clausula de seleccion
+                null, // No hay argumentos de la clausula de seleccion
+                null); // No hay orden definido
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        // Proceed with moving to the first row of the cursor and reading data from it
+        // (This should be the only row in the cursor)
+        // Bail early if the cursor is null or there is less than 1 row in the cursor
+        if (data== null || data.getCount() < 1) {
+            return;
+        }
+        // Moverse a la primera fila de los datos para empezar a extraer la info
+        if (data.moveToFirst()) {
+            // Encuentra todas las columnas de los atributos que estamos interesados en el cursor
+            int nameColumnIndex = data.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME);
+            int breedColumnIndex = data.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED);
+            int genderColumnIndex = data.getColumnIndex(PetContract.PetEntry.COLUMN_PET_GENDER);
+            int weightColumnIndex = data.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT);
+
+            // Extraer la info del cursor
+            String name = data.getString(nameColumnIndex);
+            String breed = data.getString(breedColumnIndex);
+            int gender = data.getInt(genderColumnIndex);
+            int weight = data.getInt(weightColumnIndex);
+
+            // Modifica los Views segun la info de la Mascota Seleccionada
+            mNameEditText.setText(name);
+            mBreedEditText.setText(breed);
+            mWeightEditText.setText(Integer.toString(weight));
+
+            // Para el spinner se usa el metodo .setseleccion usando los casos que corresponden al
+            // genero
+            switch (gender) {
+                case PetContract.PetEntry.GENDER_MALE:
+                    mGenderSpinner.setSelection(1);
+                    break;
+                case PetContract.PetEntry.GENDER_FEMALE:
+                    mGenderSpinner.setSelection(2);
+                    break;
+                default:
+                    mGenderSpinner.setSelection(0);
+                    break;
+            }
+
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }
