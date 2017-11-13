@@ -2,6 +2,7 @@
 package com.example.android.pets;
 import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -24,9 +25,13 @@ import com.example.android.pets.data.PetProvider;
 /**
  * Displays list of pets that were entered and stored in the app.
  */
-public class CatalogActivity extends AppCompatActivity {
+public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private PetDBHelper mDbHelper;
+    // Inicializando el Loader con int arbitrario
+    private static final int PET_LOADER = 0;
+    // Instancia del adaptador que usaremos mas adelante en los loaders
+    PetCursorAdapter mCursorAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +58,15 @@ public class CatalogActivity extends AppCompatActivity {
         View emptyView = findViewById(R.id.empty_view);
         petListView.setEmptyView(emptyView);
 
+        // Llama al cursor adapter para crear la lista de views con cursor nulo porque este se llena
+        // Hasta despues de que finalice el Loader
+        mCursorAdapter = new PetCursorAdapter(this,null);
+        petListView.setAdapter(mCursorAdapter);
+
+
+        // Inicializacion del Loader (background thread para hacer query)
+        getLoaderManager().initLoader(PET_LOADER, null, this);
+
         //Llama al constructor de la clase PetDBHelper para poder hacer metodos sobre el
         mDbHelper = new PetDBHelper(this);
 
@@ -67,7 +81,8 @@ public class CatalogActivity extends AppCompatActivity {
     @Override
     protected void onStart(){
         super.onStart();
-        displayDatabaseInfo2();
+        //Se comenta para pasar el task en el onCreateMethod del Loader Manager
+        //displayDatabaseInfo2();
     }
 
     /**
@@ -196,7 +211,8 @@ public class CatalogActivity extends AppCompatActivity {
             case R.id.action_insert_dummy_data:
                 //Llama al nuevo metodo que inserta una mascota
                 insertPet();
-                displayDatabaseInfo2();
+                //
+                // displayDatabaseInfo2();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
@@ -204,5 +220,37 @@ public class CatalogActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        // Definida una projeccion sobre la que se va a hacer el query (las columnas que jalaremos)
+        String[] projeccion = {PetEntry._ID,
+                PetEntry.COLUMN_PET_NAME,
+                PetEntry.COLUMN_PET_BREED,
+                PetEntry.COLUMN_PET_GENDER,
+                PetEntry.COLUMN_PET_WEIGHT
+        };
+        // Este loader ejecuta el Content Provider metodo de hacer un query usando la projeccion en
+        //una background thread
+        return new CursorLoader(this, // Contexto de la Parent Activity
+                PetContract.CONTENT_URI, // Uri con la que se harà el query al content provider
+                projeccion,// Columnas a incluir en el cursor
+                null, // No hay clausula de seleccion
+                null, // No hay argumentos de la clausula de seleccion
+                null); // No hay orden definido
+    }
+
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        // Actualizar el nuevo cursor con este nuevo cursor que contiene ya el query
+        mCursorAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // Llamado cuando los datos necesitan ser borrados
+        mCursorAdapter.swapCursor(null);
     }
 }
