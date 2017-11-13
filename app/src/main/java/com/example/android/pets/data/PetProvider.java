@@ -84,7 +84,7 @@ public class PetProvider extends ContentProvider {
         // si los datos en el URI cambiaron entonces sabemos que
         // debemos de actualizar el cursor
         cursor.setNotificationUri(getContext().getContentResolver(),uri);
-        
+
         return cursor;
     }
 
@@ -188,6 +188,13 @@ public class PetProvider extends ContentProvider {
         // idFilasActualizadas usando el objeto database
         int idFilasActualizadas = database.update(PetContract.PetEntry.TABLE_NAME,values,selection
                 ,selectionArgs);
+
+        // Primero verifica si el numero de filas actualizadas fue mayor a 0
+        if (idFilasActualizadas> 0) {
+            // Notifica a los listeners que los datos han cambiado para el petcontent uri
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
         // Regresa el entero del numero de filas actualizadas
         return idFilasActualizadas;
 
@@ -206,6 +213,10 @@ public class PetProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match){
             case PETS:
+                
+                // Notifica a los listeners que los datos han cambiado para el petcontent uri
+                getContext().getContentResolver().notifyChange(uri,null);
+
                 return database.delete(PetContract.PetEntry.TABLE_NAME,
                         selection,selectionArgs);
             case PETS_ID:
@@ -214,6 +225,10 @@ public class PetProvider extends ContentProvider {
                 selection = PetContract.PetEntry._ID +"=?";
                 // Arroja un vector de cadenas de los ids individuales contenidos en la String
                 selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
+
+                // Notifica a los listeners que los datos han cambiado para el petcontent uri
+                getContext().getContentResolver().notifyChange(uri,null);
+
                 return  database.delete(PetContract.PetEntry.TABLE_NAME,selection,selectionArgs);
             default:
                 throw new IllegalArgumentException("No es soportado borrar para: " + uri);
