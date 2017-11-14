@@ -141,19 +141,36 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
      * Jala los datos que puso el usuario y salva la mascota en la BDD
      */
     private  void insertPet(){
-        //Llama al objeto creado que hace referencia a la view y llama al metodo .gettext y
-        //.tostring para sacar los datos y transformarlos a texto el trim elimina los blancos adicionales
+        // Llama al objeto creado que hace referencia a la view y llama al metodo .gettext y
+        // .tostring para sacar los datos y transformarlos a texto el trim elimina los blancos adicionales
         String nombreAInsertar = mNameEditText.getText().toString().trim();
         Integer generoAInsertar = mGender;
         String razaAInsertar = mBreedEditText.getText().toString().trim();
-        Integer pesoAInsertar = Integer.parseInt(mWeightEditText.getText().toString().trim());
-        //Crea una lista de key pairs de datos dummy con los que se va a llenar un registro de la
-        //talba pets
+        String pesoAInsertar = mWeightEditText.getText().toString().trim();
+
+        int weight = 0;
+        if (!TextUtils.isEmpty(pesoAInsertar)) {
+            weight = Integer.parseInt(pesoAInsertar);
+        }
+
+        // Verifica si esta es una nueva pet y ve si los campos estan vacios para salir antes del
+        // metodo
+
+        if (mCurrentPetUri == null &&
+                TextUtils.isEmpty(nombreAInsertar) && TextUtils.isEmpty(razaAInsertar) &&
+                TextUtils.isEmpty(pesoAInsertar)  && mGender == PetContract.PetEntry.GENDER_UNKNOWN) {
+            // Since no fields were modified, we can return early without creating a new pet.
+            // No need to create ContentValues and no need to do any ContentProvider operations.
+            return;
+        }
+
+        // Crea una lista de key pairs de datos dummy con los que se va a llenar un registro de la
+        // tabla pets
         ContentValues valoresInsertar = new ContentValues();
         valoresInsertar.put(PetContract.PetEntry.COLUMN_PET_NAME, nombreAInsertar);
         valoresInsertar.put(PetContract.PetEntry.COLUMN_PET_BREED, razaAInsertar);
         valoresInsertar.put(PetContract.PetEntry.COLUMN_PET_GENDER, generoAInsertar);
-        valoresInsertar.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, pesoAInsertar);
+        valoresInsertar.put(PetContract.PetEntry.COLUMN_PET_WEIGHT, weight);
 
         //Codigo viejo que inserta el la mascota a la BDD usando query directo
         //Constructor del objeto PetDBHelper
@@ -176,6 +193,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if ( mCurrentPetUri == null){
             // Entonces esta es una nueva mascota, llamamos al metod de insercion del Data Provider
             // Regresa el contenido URI de la nueva mascota
+
             Uri newUri = getContentResolver().insert(PetContract.CONTENT_URI,valoresInsertar);
 
             // Manda un mensaje Toast dependiendo si fue exitoso o no la insercion de los datos
