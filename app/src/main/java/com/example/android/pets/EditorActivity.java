@@ -38,6 +38,7 @@ import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetDBHelper;
+import com.example.android.pets.data.PetProvider;
 
 /**
  * Allows user to create a new pet or edit an existing one.
@@ -92,7 +93,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Inicializacion del background thread para el metodo query
             mCurrentPetUri = currentPetUri;
             getLoaderManager().initLoader(EXISTING_PET_LOADER, null, this);
-
         }
 
         setupSpinner();
@@ -170,10 +170,42 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         //    Toast.makeText(this,"Mascota salvada con el ID: "+ newRowId, Toast.LENGTH_SHORT).show();
         //}
 
+        // Determinar si esta es una nueva o mascota existente verificando el mCurrentPetUri si es nulo
+        // o no
+
+        if ( mCurrentPetUri == null){
+            // Entonces esta es una nueva mascota, llamamos al metod de insercion del Data Provider
+            // Regresa el contenido URI de la nueva mascota
+            Uri newUri = getContentResolver().insert(PetContract.CONTENT_URI,valoresInsertar);
+
+            // Manda un mensaje Toast dependiendo si fue exitoso o no la insercion de los datos
+            if (newUri == null){
+                Toast.makeText(this,"No se pudo insertar la mascota a la BDD",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this,"Insercion exitosa a la BDD",Toast.LENGTH_SHORT).show();
+            }
+        }   else {
+
+            // Entonces es una nueva mascota por lo tanto llamamos a los metodos del provider
+            // relacionados con el update con la URI de la mascota que estamos mostrando para
+            // que solo sea un registro
+
+            int filasAfectadas = getContentResolver().update(mCurrentPetUri,
+                    valoresInsertar,null,null);
+
+            // Mensaje de Toast con el update bien hecho (depende del filas afectadas)
+            if (filasAfectadas > 0){
+                Toast.makeText(this,"Actualizacion Exitosa",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this,"Fallo en la actualizacion",Toast.LENGTH_SHORT).show();
+            }
+
+        }
+
         /**
          * Llamado de insercion al metodo que usa el nuevo data provider, regresa una uri con el contenido
          * de direccion del nuevo registro de mascota en la BDD
-         */
+         + Codigo viejo de los mensajes Toast
         Uri nuevaUri = getContentResolver().insert(PetContract.CONTENT_URI,valoresInsertar);
         // El mensaje Toast segun el valor de nuevaURI
         if (nuevaUri==null){
@@ -183,6 +215,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             Toast.makeText(this,getString(R.string.insertar_mascota_exito),
                     Toast.LENGTH_SHORT).show();
         }
+         **/
     }
 
     @Override
