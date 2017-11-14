@@ -1,9 +1,11 @@
 
 package com.example.android.pets;
+import android.app.AlertDialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -18,6 +20,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetContract.PetEntry;
@@ -239,6 +242,9 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
                 // Do nothing for now
+
+                // LLamar al metodo que borrara la BDD
+                borrarTodo();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -275,4 +281,47 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         // Llamado cuando los datos necesitan ser borrados
         mCursorAdapter.swapCursor(null);
     }
+
+    /**
+     * Metodo que se encarga de mostrar un mensaje de borrado de toda la BDD y de hacer la
+     * accion de borrado especifica
+     */
+    private void borrarTodo() {
+        // Create an AlertDialog.Builder and set the message, and click listeners
+        // for the postivie and negative buttons on the dialog.
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Borrar toda la BDD?");
+        builder.setPositiveButton("Si borrars", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Delete" button, so delete the pet.
+                borrarBDD();
+            }
+        });
+        builder.setNegativeButton("Ño borrars aiudaaaa", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked the "Cancel" button, so dismiss the dialog
+                // and continue editing the pet.
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        // Create and show the AlertDialog
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    /**
+     * Perform the deletion of the pet in the database.
+     */
+    private void borrarBDD() {
+        // Pasado el URI que determina que lo que se va a borrar va a ser toda la tabla de Pets
+        getContentResolver().delete(PetContract.CONTENT_URI, null, null);
+        // Mensaje de Toast que indica que borraste la tabla
+        Toast.makeText(this, "Borraste TOODOOO XDXDXDXD",
+                        Toast.LENGTH_SHORT).show();
+        }
+
+
 }
